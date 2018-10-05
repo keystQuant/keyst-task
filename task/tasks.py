@@ -14,7 +14,7 @@ def update_tasks(redis_client):
 
     task_in_progress = redis_client.get_key('TASK_IN_PROGRESS')
     task_in_progress = 1 if task_in_progress == 'True' else 0
-    if not task_ran or not task_in_progress:
+    if not task_in_progress:
         # task가 실행중이 아니면, 실행
         return 1
     else:
