@@ -20,7 +20,7 @@ from celery.schedules import crontab
 app.conf.beat_schedule = {
     'test-task': {
         'task': 'task.tasks.data_update_task',
-        'schedule': 60 * 1,
+        'schedule': 60 * 15,
         'args': (),
     },
 }
