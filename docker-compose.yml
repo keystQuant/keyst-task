@@ -1,0 +1,86 @@
+version: "3"
+
+services:
+  rabbit:
+    container_name: keystask-rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    image: rabbitmq:3-management
+    networks:
+      - keystone
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: unless-stopped
+
+  celery:
+    build:
+      context: .
+      dockerfile: Celerydocker
+    container_name: keystask-celery
+    depends_on:
+      - rabbit
+    links:
+      - rabbit:rabbit
+    networks:
+      - keystone
+    restart: unless-stopped
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: Beatdocker
+    container_name: keystask-celerybeat
+    depends_on:
+      - rabbit
+    links:
+      - rabbit:rabbit
+    networks:
+      - keystone
+    restart: unless-stopped
+
+  flower:
+    build:
+      context: .
+      dockerfile: Flowerdocker
+    container_name: keystask-flower
+    depends_on:
+      - celery
+      - celerybeat
+    networks:
+      - keystone
+    ports:
+      - 5555:5555
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: keystask-django
+    depends_on:
+      - celery
+      - celerybeat
+    networks:
+      - keystone
+    restart: unless-stopped
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+
+  nginx:
+    build: ./config/nginx
+    container_name: keystask-nginx
+    depends_on:
+      - web
+    links:
+      - web:web
+    networks:
+      - keystone
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+
+networks:
+  keystone:
+    driver: bridge
