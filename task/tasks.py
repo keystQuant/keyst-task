@@ -11,8 +11,6 @@ def update_tasks(redis_client):
     task_ran = redis_client.key_exists('TASK_IN_PROGRESS')
     if not task_ran:
         return 1
-    else:
-        print('Redis 캐시에서 TASK_IN_PROGRESS 키값을 확인합니다.')
 
     task_in_progress = redis_client.get_key('TASK_IN_PROGRESS')
     task_in_progress = 1 if task_in_progress == 'True' else 0
