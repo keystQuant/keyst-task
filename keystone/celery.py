@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 from datetime import timedelta
+from task.tasks import temp_data_crawler, temp_update_check, temp_send_cache, send_ohlcv_cache
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'keystone.settings')
 
@@ -18,9 +19,24 @@ def debug_task(self):
 from celery.schedules import crontab
 
 app.conf.beat_schedule = {
-    'test-task': {
-        'task': 'task.tasks.data_update_task',
-        'schedule': 60 * 3,
+    'update_check': {
+        'task': 'task.tasks.temp_update_check',
+        'schedule': crontab(minute='0', hour='17', day_of_week='mon-fri'),
+        'args': (),
+    },
+    'data_crawler': {
+        'task': 'task.tasks.temp_data_crawler',
+        'schedule': crontab(minute='0', hour='3', day_of_week='tue-sat'),
+        'args': (),
+    },
+    'send_cache': {
+        'task': 'task.tasks.temp_send_cache',
+        'schedule': crontab(minute='0', hour='4', day_of_week='tue-sat'),
+        'args': (),
+    },
+    'send_cache': {
+        'task': 'task.tasks.send_ohlcv_cache',
+        'schedule': crontab(minute='30', hour='5', day_of_week='tue-sat'),
         'args': (),
     },
 }

@@ -3,9 +3,29 @@ from celery import shared_task
 import time
 import requests
 from .cache import RedisClient
+from task.send_ohlcv_cache import KeystTask
 
 GOBBLE_URL = 'http://45.77.31.8:3000/task/'
 API_URL = 'http://45.76.202.71:3000/api/v1/stocks/task/?type='
+
+DATE = 'http://45.77.31.8:3000/task/DATE'
+TICKER = 'http://45.77.31.8:3000/task/TICKER'
+STOCKINFO = 'http://45.77.31.8:3000/task/STOCKINFO'
+INDEX = 'http://45.77.31.8:3000/task/INDEX'
+ETF =  'http://45.77.31.8:3000/task/ETF'
+OHLCV = 'http://45.77.31.8:3000/task/OHLCV'
+MARKETCAPITAL = 'http://45.77.31.8:3000/task/MARKETCAPITAL'
+BUYSELL = 'http://45.77.31.8:3000/task/BUYSELL'
+FACTOR = 'http://45.77.31.8:3000/task/FACTOR'
+UPDATE = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=SET_UPDATE_TASKS'
+
+cache_ticker_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_TICKER_DATA'
+get_ticker_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=_GET_TICKERS'
+cache_index_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_INDEX_DATA'
+cache_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_OHLCV_DATA'
+cache_full_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_FULL_OHLCV_DATA'
+cache_buysell_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_BUYSELL_DATA'
+
 
 def update_tasks(redis_client):
     task_ran = redis_client.key_exists('TASK_IN_PROGRESS')
@@ -63,4 +83,55 @@ def data_update_task():
         ending_tasks(r)
     else:
         print('TASK ALREADY IN PROGRESS: 같은 태스크가 이미 실행중입니다. 조금 있다 다시 시도합니다.')
+    return True
+
+@shared_task
+def temp_update_check():
+    date = requests.get(DATE)
+    time.sleep(40)
+    print("DATE")
+    update = requests.get(UPDATE)
+    time.sleep(40)
+    print("Update")
+    return True
+
+@shared_task
+def temp_data_crawler():
+    ticker = requests.get(TICKER)
+    time.sleep(60)
+    print("TICKER")
+    index = requests.get(INDEX)
+    time.sleep(60)
+    print("INDEX")
+    etf = requests.get(ETF)
+    time.sleep(60)
+    print("ETF")
+    ohlcv = requests.get(OHLCV)
+    time.sleep(60)
+    print("OHLCV")
+    mktcap = requests.get(MARKETCAPITAL)
+    time.sleep(60)
+    print("MARKETCAPITAL")
+    buysell = requests.get(BUYSELL)
+    time.sleep(60)
+    print("BUYSELL")
+    factor = requests.get(FACTOR)
+    time.sleep(120)
+    print("Data Crawler Quit")
+    return True
+
+@shared_task
+def temp_send_cache():
+    cache_ticker = requests.get(cache_ticker_data)
+    get_ticker = requests.get(get_ticker_data)
+    cache_index = requests.get(cache_index_data)
+    cache_ohlcv = requests.get(cache_ohlcv_data)
+    cache_full_ohlcv = requests.get(cache_full_ohlcv_data)
+    cache_buysell = requests.get(cache_buysell_data)
+    print("all process is completed!")
+    return True
+
+@shared_task
+def send_ohlcv_cache():
+    k.send_ohlcv_data()
     return True
