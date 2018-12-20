@@ -26,6 +26,7 @@ cache_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_OHLC
 cache_full_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_FULL_OHLCV_DATA'
 cache_buysell_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_BUYSELL_DATA'
 
+k = KeystTask()
 
 def update_tasks(redis_client):
     task_ran = redis_client.key_exists('TASK_IN_PROGRESS')

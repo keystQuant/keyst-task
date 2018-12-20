@@ -26,17 +26,17 @@ app.conf.beat_schedule = {
     },
     'data_crawler': {
         'task': 'task.tasks.temp_data_crawler',
-        'schedule': crontab(minute='0', hour='3', day_of_week='tue-sat'),
+        'schedule': crontab(minute='30', hour='2', day_of_week='tue-sat'),
         'args': (),
     },
     'send_cache': {
         'task': 'task.tasks.temp_send_cache',
-        'schedule': crontab(minute='0', hour='4', day_of_week='tue-sat'),
+        'schedule': crontab(minute='10', hour='3', day_of_week='tue-sat'),
         'args': (),
     },
     'send_cache': {
         'task': 'task.tasks.send_ohlcv_cache',
-        'schedule': crontab(minute='30', hour='5', day_of_week='tue-sat'),
+        'schedule': crontab(minute='10', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
 }
