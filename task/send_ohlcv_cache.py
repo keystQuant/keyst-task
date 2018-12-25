@@ -1,4 +1,5 @@
 import redis, time
+import requests
 
 KOSPI_TICKERS = 'KOSPI_TICKERS'
 KOSDAQ_TICKERS = 'KOSDAQ_TICKERS'

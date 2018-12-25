@@ -31,12 +31,12 @@ app.conf.beat_schedule = {
     },
     'send_cache': {
         'task': 'task.tasks.temp_send_cache',
-        'schedule': crontab(minute='10', hour='3', day_of_week='tue-sat'),
+        'schedule': crontab(minute='0', hour='3', day_of_week='tue-sat'),
         'args': (),
     },
     'make_ohlcv_cache': {
         'task': 'task.tasks.send_ohlcv_cache',
-        'schedule': crontab(minute='10', hour='4', day_of_week='tue-sat'),
+        'schedule': crontab(minute='20', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
 }
