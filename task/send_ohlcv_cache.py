@@ -29,7 +29,7 @@ class KeystTask(object):
         i = 0
         while True:
             i += 1
-            req = requests.get(self.mkcap_url.format(self.today_date, i))
+            req = requests.get(self.mktcap_url.format(self.today_date, i))
             status_code = req.status_code
             if status_code == 404:
                 break
