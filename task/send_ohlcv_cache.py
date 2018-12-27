@@ -51,6 +51,7 @@ class KeystTask(object):
 
     def make_redis_ohlcv_df(self, mode, kp_tickers_list, kd_tickers_list):
         make_data_start = True
+        global total_ohlcv, total_vol
         if mode == 'kp':
             tickers_list = kp_tickers_list
         elif mode == 'kd':
