@@ -103,9 +103,6 @@ def temp_data_crawler():
     index = requests.get(INDEX)
     time.sleep(120)
     print("INDEX")
-    etf = requests.get(ETF)
-    time.sleep(120)
-    print("ETF")
     ohlcv = requests.get(OHLCV)
     time.sleep(120)
     print("OHLCV")
@@ -118,6 +115,14 @@ def temp_data_crawler():
     factor = requests.get(FACTOR)
     time.sleep(120)
     print("Data Crawler Quit")
+    return True
+
+# 밤 사이에 ETF 데이터만 업데이트가 되지 않아서 추가한 Task
+@shared_task
+def temp_etf_crawler():
+    etf = requests.get(ETF)
+    time.sleep(120)
+    print("ETF")
     return True
 
 @shared_task

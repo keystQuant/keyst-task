@@ -39,4 +39,9 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='20', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
+    'etf_data_crawler': {
+        'task': 'task.tasks.temp_etf_crawler',
+        'schedule': crontab(minute='0', hour='6', day_of_week='tue-sat'),
+        'args': (),
+    },
 }

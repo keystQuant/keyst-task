@@ -1,5 +1,6 @@
 import redis, time
 import requests
+import pandas  as pd
 
 KOSPI_TICKERS = 'KOSPI_TICKERS'
 KOSDAQ_TICKERS = 'KOSDAQ_TICKERS'
