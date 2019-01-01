@@ -52,7 +52,6 @@ class KeystTask(object):
 
     def make_redis_ohlcv_df(self, mode, kp_tickers_list, kd_tickers_list):
         make_data_start = True
-        global total_ohlcv, total_vol
         if mode == 'kp':
             tickers_list = kp_tickers_list
         elif mode == 'kd':
@@ -61,6 +60,7 @@ class KeystTask(object):
             print('choose kp or kd')
         for ticker in tickers_list:
             # OHLCV 데이터 불러오기
+            print(ticker)
             key = ticker + '_OHLCV'
             ohlcv = pd.read_msgpack(self.r.get(key))
             ohlcv.set_index('date', inplace=True)
@@ -87,9 +87,9 @@ class KeystTask(object):
         kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list)
 
         print(kp_ohlcv.shape, kd_ohlcv.shape, kp_vol.shape, kd_vol.shape)
-        r.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
-        r.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
-        r.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
-        r.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
+        self.r.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
+        self.r.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
+        self.r.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
+        self.r.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
         success=True
         return success, "Data send complete"
