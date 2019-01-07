@@ -68,6 +68,8 @@ class KeystTask(object):
         else:
             print('choose kp or kd')
         print(len(tickers_list))
+        global total_ohlcv
+        global total_vol
         i = 0
         for ticker in tickers_list:
             # OHLCV 데이터 불러오기
