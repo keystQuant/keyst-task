@@ -90,7 +90,7 @@ class KeystTask(object):
             else:
                 total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
                 total_vol = pd.concat([total_vol, vol_df], axis=1)
-            print(len(total_ohlcv, total_vol))
+            print(total_ohlcv.shape, total_vol.shape)
         return total_ohlcv, total_vol
 
     def send_ohlcv_data(self):
