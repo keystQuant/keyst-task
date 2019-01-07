@@ -57,7 +57,7 @@ class KeystTask(object):
         kd_tickers_list = [ticker.split('|')[0] for ticker in kd_tickers if ticker.split('|')[0] in refined_ticker]
         return kp_tickers_list, kd_tickers_list, etf_tickers_list
 
-    def make_redis_ohlcv_df(self, mode, kp_tickers_list, etf_tickers_list):
+    def make_redis_ohlcv_df(self, mode, kp_tickers_list, kd_tickers_list,etf_tickers_list):
         make_data_start = True
         if mode == 'kp':
             tickers_list = kp_tickers_list
