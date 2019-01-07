@@ -95,7 +95,7 @@ class KeystTask(object):
 
     def send_ohlcv_data(self):
         success=False
-        kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers)
+        kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, self.etf_tickers)
         print(len(kp_tickers_list), len(kd_tickers_list), len(etf_tickers_list))
         kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, etf_tickers_list)
         kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list, etf_tickers_list)
