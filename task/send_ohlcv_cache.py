@@ -30,6 +30,7 @@ class KeystTask(object):
     def make_refined_data(self):
         samsung_ohlcv = pd.read_msgpack(self.r.get('005930_OHLCV'))
         recent_date = int(samsung_ohlcv.tail(1)['date'])
+        print(recent_date)
         refined_ticker = []
         status_code = 200
         i = 0
@@ -50,6 +51,7 @@ class KeystTask(object):
         etf_tickers_list = [ticker.split('|')[0] for ticker in etf_tickers]
         if mode == 'except_etf':
             mkt_ticker = self.make_refined_data()
+            print(len(mkt_ticker))
             refined_ticker = [i for i in mkt_ticker if i not in etf_tickers_list]
         else:
             refined_ticker = self.make_refined_data()
@@ -98,7 +100,7 @@ class KeystTask(object):
 
     def send_ohlcv_data(self):
         success=False
-        kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, self.etf_tickers)
+        kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, self.etf_tickers, mode="except_etf")
         print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(etf_tickers_list))
         kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, etf_tickers_list)
         print("kodpi_data:",kp_ohlcv.shape, kp_vol.shape)
