@@ -41,6 +41,7 @@ class KeystTask(object):
             if status_code == 404:
                 break
             mkcap_ticker = [r['code'] for r in req.json()['results']]
+            print("mkt_ticker_length:",len(mkcap_ticker))
             refined_ticker += mkcap_ticker
         return refined_ticker
 
