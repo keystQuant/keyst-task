@@ -18,7 +18,7 @@ ETF_VOL = 'ETF_VOL'
 class KeystTask(object):
 
     def __init__(self):
-        self.mktcap_url = 'http://45.76.202.71:3000/api/v1/stocks/mktcap/?date={}&page={}'
+        self.mktcap_url = 'http://45.76.202.71:3000/api/v1/stocks/info/?date={}&page={}'
         self.cache_ip = '198.13.60.19'
         self.cache_pw = 'da56038fa453c22d2c46e83179126e97d4d272d02ece83eb83a97357e842d065'
         self.r = redis.StrictRedis(host=self.cache_ip, port=6379, password=self.cache_pw)
