@@ -67,7 +67,7 @@ class KeystTask(object):
             tickers_list =  etf_tickers_list
         else:
             print('choose kp or kd')
-        print(len(tickers_list))
+        print("{}:".format(mode), len(tickers_list))
         global total_ohlcv
         global total_vol
         i = 0
@@ -89,20 +89,23 @@ class KeystTask(object):
                 total_ohlcv = ohlcv_df
                 total_vol = vol_df
                 make_data_start = False
+                print(make_data_start)
             else:
                 total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
                 total_vol = pd.concat([total_vol, vol_df], axis=1)
-            print(total_ohlcv.shape, total_vol.shape)
+            print("df_size_{}".format(mode), total_ohlcv.shape, total_vol.shape)
         return total_ohlcv, total_vol
 
     def send_ohlcv_data(self):
         success=False
         kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, self.etf_tickers)
-        print(len(kp_tickers_list), len(kd_tickers_list), len(etf_tickers_list))
+        print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(etf_tickers_list))
         kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, etf_tickers_list)
+        print("kodpi_data:",kp_ohlcv.shape, kp_vol.shape)
         kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list, etf_tickers_list)
+        print("kosdaq_data:",kd_ohlcv, kd_vol)
         etf_ohlcv, etf_vol = self.make_redis_ohlcv_df('etf', kp_tickers_list, kd_tickers_list, etf_tickers_list)
-        print(kp_ohlcv.shape, kd_ohlcv.shape, kp_vol.shape, kd_vol.shape, etf_ohlcv.shape, etf_vol.shape)
+        print("etf_data:",etf_ohlcv, etf_vol)
 
         for key in [KOSPI_OHLCV, KOSDAQ_OHLCV, ETF_OHLCV, KOSPI_OHLCV, KOSDAQ_VOL, ETF_VOL]:
             response = self.r.exists(key)
