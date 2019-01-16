@@ -31,7 +31,7 @@ class KeystTask(object):
         self.kd_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSDAQ_TICKERS, 0 ,-1)]
         self.etf_tickers = self.redis.get_list(ETF_TICKERS)
         self.mkt_tickers = self.redis.get_list('MKTCAP_TICKERS')
-        print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers), len(self.total_tickers))
+        print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers))
 
     # def make_refined_data(self):
     #     samsung_ohlcv = pd.read_msgpack(self.redis.RedisClient.get('005930_OHLCV'))
