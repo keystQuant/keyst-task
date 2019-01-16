@@ -27,8 +27,8 @@ class KeystTask(object):
         self.cache_pw = 'da56038fa453c22d2c46e83179126e97d4d272d02ece83eb83a97357e842d065'
         # self.r = redis.StrictRedis(host=self.cache_ip, port=6379, password=self.cache_pw)
         self.redis = RedisClient()
-        self.kp_tickers = [ticker.decode() for ticker in self.redis.RedisClient.lrange(KOSPI_TICKERS, 0 ,-1)]
-        self.kd_tickers = [ticker.decode() for ticker in self.redis.RedisClient.lrange(KOSDAQ_TICKERS, 0 ,-1)]
+        self.kp_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSPI_TICKERS, 0 ,-1)]
+        self.kd_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSDAQ_TICKERS, 0 ,-1)]
         self.etf_tickers = self.redis.get_list(ETF_TICKERS)
         self.mkt_tickers = self.redis.get_list('MKTCAP_TICKERS')
         print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers), len(self.total_tickers))
@@ -83,7 +83,7 @@ class KeystTask(object):
             if i % 100 == 0:
                 print(ticker)
             key = ticker + '_OHLCV'
-            ohlcv = pd.read_msgpack(self.redis.RedisClient.get(key))
+            ohlcv = pd.read_msgpack(self.redis.redis_client.get(key))
             ohlcv.set_index('date', inplace=True)
             ohlcv.index = pd.to_datetime(ohlcv.index)
             ohlcv_df = ohlcv[['adj_prc']]
@@ -115,7 +115,7 @@ class KeystTask(object):
             if i % 100 == 0:
                 print(ticker)
             key = ticker + '_MKTCAP'
-            mkt_capital = pd.read_msgpack(self.redis.RedisClient.get(key))
+            mkt_capital = pd.read_msgpack(self.redis.redis_client.get(key))
             mkt_capital.set_index('date', inplace=True)
             mkt_capital.index = pd.to_datetime(mkt_capital.index)
             mkt_capital_df = mkt_capital[['comm_stk_qty']]
@@ -145,17 +145,17 @@ class KeystTask(object):
         print("etf_data:",etf_ohlcv, etf_vol)
 
         for key in [KOSPI_OHLCV, KOSDAQ_OHLCV, ETF_OHLCV, KOSPI_OHLCV, KOSDAQ_VOL, ETF_VOL]:
-            response = self.redis.RedisClient.exists(key)
+            response = self.redis.key_exists(key)
             if response != False:
-                self.redis.RedisClient.delete(key)
+                self.redis.redis_client.delete(key)
                 print('{} 이미 있음, 삭제하는 중...'.format(key))
 
-        self.redis.RedisClient.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
-        self.redis.RedisClient.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
-        self.redis.RedisClient.set(ETF_OHLCV, etf_ohlcv.to_msgpack(compress='zlib'))
-        self.redis.RedisClient.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
-        self.redis.RedisClient.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
-        self.redis.RedisClient.set(ETF_VOL, etf_vol.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(ETF_OHLCV, etf_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(ETF_VOL, etf_vol.to_msgpack(compress='zlib'))
         end = time.time()
         success=True
         print(end-start)
@@ -168,12 +168,12 @@ class KeystTask(object):
         print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(self.etf_tickers))
         mkt_df_key = "MKTCAP_DF"
 
-        response = self.redis.RedisClient.exists(mkt_df_key)
+        response = self.redis.redis_client.exists(mkt_df_key)
         if response != False:
-            self.redis.RedisClient.delete(mkt_df_key)
+            self.redis.redis_client.delete(mkt_df_key)
             print('{} 이미 있음, 삭제하는 중...'.format(mkt_df_key))
 
-        self.redis.RedisClient.set('MKT_CAPITAL', mkt_df_key.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set('MKT_CAPITAL', mkt_df_key.to_msgpack(compress='zlib'))
         end = time.time()
         success=True
         print(end-start)
