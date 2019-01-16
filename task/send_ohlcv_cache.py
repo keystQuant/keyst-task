@@ -1,10 +1,14 @@
 import redis, time
 import requests
 import pandas  as pd
+import time
+
+from utils.cache import RedisClient
+
 
 KOSPI_TICKERS = 'KOSPI_TICKERS'
 KOSDAQ_TICKERS = 'KOSDAQ_TICKERS'
-ETF_TICKERS = 'ETF_TICKERS'
+ETF_TICKERS = 'ETF_FULL_TICKERS'
 
 KOSPI_OHLCV = 'KOSPI_OHLCV'
 KOSDAQ_OHLCV = 'KOSDAQ_OHLCV'
@@ -18,47 +22,46 @@ ETF_VOL = 'ETF_VOL'
 class KeystTask(object):
 
     def __init__(self):
-        self.mktcap_url = 'http://45.76.202.71:3000/api/v1/stocks/mktcap/?date={}&page={}'
+        # self.mktcap_url = 'http://45.76.202.71:3000/api/v1/stocks/mktcap/?date={}&page={}'
         self.cache_ip = '198.13.60.19'
         self.cache_pw = 'da56038fa453c22d2c46e83179126e97d4d272d02ece83eb83a97357e842d065'
-        self.r = redis.StrictRedis(host=self.cache_ip, port=6379, password=self.cache_pw)
-        self.kp_tickers = [ticker.decode() for ticker in self.r.lrange(KOSPI_TICKERS, 0 ,-1)]
-        self.kd_tickers = [ticker.decode() for ticker in self.r.lrange(KOSDAQ_TICKERS, 0 ,-1)]
-        self.etf_tickers = [ticker.decode() for ticker in self.r.lrange(ETF_TICKERS, 0 ,-1)]
-        print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers))
+        # self.r = redis.StrictRedis(host=self.cache_ip, port=6379, password=self.cache_pw)
+        self.redis = RedisClient()
+        self.kp_tickers = [ticker.decode() for ticker in self.redis.RedisClient.lrange(KOSPI_TICKERS, 0 ,-1)]
+        self.kd_tickers = [ticker.decode() for ticker in self.redis.RedisClient.lrange(KOSDAQ_TICKERS, 0 ,-1)]
+        self.etf_tickers = self.redis.get_list(ETF_TICKERS)
+        self.mkt_tickers = self.redis.get_list('MKTCAP_TICKERS')
+        print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers), len(self.total_tickers))
 
-    def make_refined_data(self):
-        samsung_ohlcv = pd.read_msgpack(self.r.get('005930_OHLCV'))
-        recent_date = int(samsung_ohlcv.tail(1)['date'])
-        print(recent_date)
-        refined_ticker = []
-        status_code = 200
-        i = 0
-        while True:
-            i += 1
-            req = requests.get(self.mktcap_url.format(recent_date, i))
-            status_code = req.status_code
-            if status_code == 404:
-                break
-            mkcap_ticker = [r['code'] for r in req.json()['results']]
-            print("mkt_ticker_length:",len(mkcap_ticker))
-            refined_ticker += mkcap_ticker
-        return refined_ticker
+    # def make_refined_data(self):
+    #     samsung_ohlcv = pd.read_msgpack(self.redis.RedisClient.get('005930_OHLCV'))
+    #     recent_date = int(samsung_ohlcv.tail(1)['date'])
+    #     print(recent_date)
+    #     refined_ticker = []
+    #     status_code = 200
+    #     i = 0
+    #     while True:
+    #         i += 1
+    #         req = requests.get(self.mktcap_url.format(recent_date, i))
+    #         status_code = req.status_code
+    #         if status_code == 404:
+    #             break
+    #         mkcap_ticker = [r['code'] for r in req.json()['results']]
+    #         print("mkt_ticker_length:",len(mkcap_ticker))
+    #         refined_ticker += mkcap_ticker
+    #     return refined_ticker
 
-    def make_ticker_data(self, kp_tickers, kd_tickers, etf_tickers, mode=None):
-        kp_tickers_dict = dict()
-        kd_tickers_dict = dict()
-        etf_tickers_dict = dict()
-        etf_tickers_list = [ticker.split('|')[0] for ticker in etf_tickers]
+    def make_ticker_data(self, kp_tickers, kd_tickers, mode=None):
+        etf_tickers_list = self.etf_tickers
         if mode == 'except_etf':
-            mkt_ticker = self.make_refined_data()
+            mkt_ticker = self.mkt_tickers
             print(len(mkt_ticker))
-            refined_ticker = [i for i in mkt_ticker if i not in etf_tickers_list]
+            refined_ticker = [m for m in mkt_ticker if m not in etf_tickers_list]
         else:
-            refined_ticker = self.make_refined_data()
+            refined_ticker = self.mkt_tickers
         kp_tickers_list = [ticker.split('|')[0] for ticker in kp_tickers if ticker.split('|')[0] in refined_ticker]
         kd_tickers_list = [ticker.split('|')[0] for ticker in kd_tickers if ticker.split('|')[0] in refined_ticker]
-        return kp_tickers_list, kd_tickers_list, etf_tickers_list
+        return kp_tickers_list, kd_tickers_list
 
     def make_redis_ohlcv_df(self, mode, kp_tickers_list, kd_tickers_list,etf_tickers_list):
         make_data_start = True
@@ -80,7 +83,7 @@ class KeystTask(object):
             if i % 100 == 0:
                 print(ticker)
             key = ticker + '_OHLCV'
-            ohlcv = pd.read_msgpack(self.r.get(key))
+            ohlcv = pd.read_msgpack(self.redis.RedisClient.get(key))
             ohlcv.set_index('date', inplace=True)
             ohlcv.index = pd.to_datetime(ohlcv.index)
             ohlcv_df = ohlcv[['adj_prc']]
@@ -99,28 +102,79 @@ class KeystTask(object):
             print("df_size_{}".format(mode), total_ohlcv.shape, total_vol.shape)
         return total_ohlcv, total_vol
 
+    def make_redis_mktcap_df(self):
+        start = time.time()
+        make_data_start = True
+        tickers_list = self.mkt_tickers
+        print("{}:".format("mkt ticker length"), len(tickers_list))
+        global total_mkt_cap
+        i = 0
+        for ticker in tickers_list:
+            # OHLCV 데이터 불러오기
+            i += 1
+            if i % 100 == 0:
+                print(ticker)
+            key = ticker + '_MKTCAP'
+            mkt_capital = pd.read_msgpack(self.redis.RedisClient.get(key))
+            mkt_capital.set_index('date', inplace=True)
+            mkt_capital.index = pd.to_datetime(mkt_capital.index)
+            mkt_capital_df = mkt_capital[['comm_stk_qty']]
+            mkt_capital_df.rename({'comm_stk_qty':ticker}, axis='columns', inplace=True)
+
+            if make_data_start:
+                total_mkt_cap = mkt_capital_df
+                make_data_start = False
+                print(make_data_start)
+            else:
+                total_mkt_cap = pd.concat([total_mkt_cap, mkt_capital_df], axis=1)
+            print("df_size_MKT:", total_ohlcv.shape, total_vol.shape)
+        end = time.time()
+        print(end-start)
+        return total_mkt_cap
+
     def send_ohlcv_data(self):
+        start = time.time()
         success=False
-        kp_tickers_list, kd_tickers_list, etf_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, self.etf_tickers, mode="except_etf")
-        print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(etf_tickers_list))
-        kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, etf_tickers_list)
+        kp_tickers_list, kd_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, mode="except_etf")
+        print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(self.etf_tickers))
+        kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, self.etf_tickers)
         print("kodpi_data:",kp_ohlcv.shape, kp_vol.shape)
-        kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list, etf_tickers_list)
+        kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list, self.etf_tickers)
         print("kosdaq_data:",kd_ohlcv, kd_vol)
-        etf_ohlcv, etf_vol = self.make_redis_ohlcv_df('etf', kp_tickers_list, kd_tickers_list, etf_tickers_list)
+        etf_ohlcv, etf_vol = self.make_redis_ohlcv_df('etf', kp_tickers_list, kd_tickers_list, self.etf_tickers)
         print("etf_data:",etf_ohlcv, etf_vol)
 
         for key in [KOSPI_OHLCV, KOSDAQ_OHLCV, ETF_OHLCV, KOSPI_OHLCV, KOSDAQ_VOL, ETF_VOL]:
-            response = self.r.exists(key)
+            response = self.redis.RedisClient.exists(key)
             if response != False:
-                self.r.delete(key)
+                self.redis.RedisClient.delete(key)
                 print('{} 이미 있음, 삭제하는 중...'.format(key))
 
-        self.r.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
-        self.r.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
-        self.r.set(ETF_OHLCV, etf_ohlcv.to_msgpack(compress='zlib'))
-        self.r.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
-        self.r.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
-        self.r.set(ETF_VOL, etf_vol.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(KOSPI_OHLCV, kp_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(KOSDAQ_OHLCV, kd_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(ETF_OHLCV, etf_ohlcv.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(KOSPI_VOL, kp_vol.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(KOSDAQ_VOL, kd_vol.to_msgpack(compress='zlib'))
+        self.redis.RedisClient.set(ETF_VOL, etf_vol.to_msgpack(compress='zlib'))
+        end = time.time()
         success=True
+        print(end-start)
+        return success, "Data send complete"
+
+    def send_ohlcv_data(self):
+        start = time.time()
+        success=False
+        kp_tickers_list, kd_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, mode="except_etf")
+        print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(self.etf_tickers))
+        mkt_df_key = "MKTCAP_DF"
+
+        response = self.redis.RedisClient.exists(mkt_df_key)
+        if response != False:
+            self.redis.RedisClient.delete(mkt_df_key)
+            print('{} 이미 있음, 삭제하는 중...'.format(mkt_df_key))
+
+        self.redis.RedisClient.set('MKT_CAPITAL', mkt_df_key.to_msgpack(compress='zlib'))
+        end = time.time()
+        success=True
+        print(end-start)
         return success, "Data send complete"

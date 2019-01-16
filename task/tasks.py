@@ -25,6 +25,8 @@ cache_index_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_INDE
 cache_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_OHLCV_DATA'
 cache_full_ohlcv_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_FULL_OHLCV_DATA'
 cache_buysell_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_BUYSELL_DATA'
+cache_etf_ticker = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_etf_tickers'
+cache_mktcap_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_mktcap_data'
 
 k = KeystTask()
 
@@ -125,6 +127,7 @@ def temp_data_crawler():
 def temp_etf_crawler():
     etf = requests.get(ETF)
     time.sleep(120)
+    etf_ticker = requests.get(cache_etf_ticker)
     print("ETF")
     return True
 
@@ -136,10 +139,16 @@ def temp_send_cache():
     cache_ohlcv = requests.get(cache_ohlcv_data)
     cache_full_ohlcv = requests.get(cache_full_ohlcv_data)
     cache_buysell = requests.get(cache_buysell_data)
+    cache_mktcap = requests.get(cache_mktcap_data)
     print("all process is completed!")
     return True
 
 @shared_task
 def send_ohlcv_cache():
     k.send_ohlcv_data()
+    return True
+
+@shared_task
+def send_mktcap_cache():
+    k.send_mktcap_cache()
     return True
