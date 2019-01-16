@@ -86,7 +86,7 @@ class KeystTask(object):
             try:
                 ohlcv = pd.read_msgpack(self.redis.redis_client.get(key))
             except ValueError:
-                print(ticker)
+                print(key)
                 continue
             ohlcv.set_index('date', inplace=True)
             ohlcv.index = pd.to_datetime(ohlcv.index)
@@ -179,7 +179,7 @@ class KeystTask(object):
             self.redis.redis_client.delete(mkt_df_key)
             print('{} 이미 있음, 삭제하는 중...'.format(mkt_df_key))
 
-        self.redis.redis_client.set('MKT_CAPITAL', mkt_df.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(mkt_df_key, mkt_df.to_msgpack(compress='zlib'))
         end = time.time()
         success=True
         print(end-start)
