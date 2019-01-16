@@ -161,11 +161,11 @@ class KeystTask(object):
         print(end-start)
         return success, "Data send complete"
 
-    def send_ohlcv_data(self):
+    def send_mkt_data(self):
         start = time.time()
         success=False
-        kp_tickers_list, kd_tickers_list = self.make_ticker_data(self.kp_tickers, self.kd_tickers, mode="except_etf")
-        print("ticker:",len(kp_tickers_list), len(kd_tickers_list), len(self.etf_tickers))
+        mkt_df = self.make_redis_mktcap_df()
+        print(mkt_df.shape)
         mkt_df_key = "MKTCAP_DF"
 
         response = self.redis.redis_client.exists(mkt_df_key)
@@ -173,7 +173,7 @@ class KeystTask(object):
             self.redis.redis_client.delete(mkt_df_key)
             print('{} 이미 있음, 삭제하는 중...'.format(mkt_df_key))
 
-        self.redis.redis_client.set('MKT_CAPITAL', mkt_df_key.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set('MKT_CAPITAL', mkt_df.to_msgpack(compress='zlib'))
         end = time.time()
         success=True
         print(end-start)
