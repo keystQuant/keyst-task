@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 from datetime import timedelta
-from task.tasks import temp_data_crawler, temp_update_check, temp_send_cache, send_ohlcv_cache
+from task.tasks import temp_data_crawler, temp_update_check, temp_send_cache, send_ohlcv_cache, send_mktcap_cache
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'keystone.settings')
 
