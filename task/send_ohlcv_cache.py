@@ -83,7 +83,10 @@ class KeystTask(object):
             if i % 100 == 0:
                 print(ticker)
             key = ticker + '_OHLCV'
-            ohlcv = pd.read_msgpack(self.redis.redis_client.get(key))
+            try:
+                ohlcv = pd.read_msgpack(self.redis.redis_client.get(key))
+            except ValueError:
+                continue
             ohlcv.set_index('date', inplace=True)
             ohlcv.index = pd.to_datetime(ohlcv.index)
             ohlcv_df = ohlcv[['adj_prc']]
