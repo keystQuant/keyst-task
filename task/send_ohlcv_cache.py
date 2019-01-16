@@ -3,7 +3,7 @@ import requests
 import pandas  as pd
 import time
 
-from utils.cache import RedisClient
+from task.cache import RedisClient
 
 
 KOSPI_TICKERS = 'KOSPI_TICKERS'
