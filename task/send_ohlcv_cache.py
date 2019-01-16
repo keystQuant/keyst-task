@@ -86,6 +86,7 @@ class KeystTask(object):
             try:
                 ohlcv = pd.read_msgpack(self.redis.redis_client.get(key))
             except ValueError:
+                print(ticker)
                 continue
             ohlcv.set_index('date', inplace=True)
             ohlcv.index = pd.to_datetime(ohlcv.index)
@@ -102,7 +103,8 @@ class KeystTask(object):
             else:
                 total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
                 total_vol = pd.concat([total_vol, vol_df], axis=1)
-            print("df_size_{}".format(mode), total_ohlcv.shape, total_vol.shape)
+            if i % 100 == 0:
+                print("df_size_{}".format(mode), total_ohlcv.shape, total_vol.shape)
         return total_ohlcv, total_vol
 
     def make_redis_mktcap_df(self):
@@ -130,7 +132,8 @@ class KeystTask(object):
                 print(make_data_start)
             else:
                 total_mkt_cap = pd.concat([total_mkt_cap, mkt_capital_df], axis=1)
-            print("df_size_MKT:", total_ohlcv.shape, total_vol.shape)
+            if i % 100 == 0:
+                print("df_size_MKT:", total_mkt_cap.shape)
         end = time.time()
         print(end-start)
         return total_mkt_cap
@@ -143,9 +146,9 @@ class KeystTask(object):
         kp_ohlcv, kp_vol = self.make_redis_ohlcv_df('kp', kp_tickers_list, kd_tickers_list, self.etf_tickers)
         print("kodpi_data:",kp_ohlcv.shape, kp_vol.shape)
         kd_ohlcv, kd_vol = self.make_redis_ohlcv_df('kd', kp_tickers_list, kd_tickers_list, self.etf_tickers)
-        print("kosdaq_data:",kd_ohlcv, kd_vol)
+        print("kosdaq_data:",kd_ohlcv.shape, kd_vol.shape)
         etf_ohlcv, etf_vol = self.make_redis_ohlcv_df('etf', kp_tickers_list, kd_tickers_list, self.etf_tickers)
-        print("etf_data:",etf_ohlcv, etf_vol)
+        print("etf_data:",etf_ohlcv.shape, etf_vol.shape)
 
         for key in [KOSPI_OHLCV, KOSDAQ_OHLCV, ETF_OHLCV, KOSPI_OHLCV, KOSDAQ_VOL, ETF_VOL]:
             response = self.redis.key_exists(key)
