@@ -217,7 +217,7 @@ class KeystTask(object):
         FRG_DF_KEY = "FRG_NET_DF"
         INS_DF_KEY = "INS_NET_DF"
 
-        for key in [PRI_DF_KEY, FRG_DF_KEY, INS_DF_KEY]
+        for key in [PRI_DF_KEY, FRG_DF_KEY, INS_DF_KEY]:
             response = self.redis.redis_client.exists(key)
             if response != False:
                 self.redis.redis_client.delete(key)
