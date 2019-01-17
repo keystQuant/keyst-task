@@ -33,24 +33,6 @@ class KeystTask(object):
         self.mkt_tickers = self.redis.get_list('MKTCAP_TICKERS')
         print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers))
 
-    # def make_refined_data(self):
-    #     samsung_ohlcv = pd.read_msgpack(self.redis.RedisClient.get('005930_OHLCV'))
-    #     recent_date = int(samsung_ohlcv.tail(1)['date'])
-    #     print(recent_date)
-    #     refined_ticker = []
-    #     status_code = 200
-    #     i = 0
-    #     while True:
-    #         i += 1
-    #         req = requests.get(self.mktcap_url.format(recent_date, i))
-    #         status_code = req.status_code
-    #         if status_code == 404:
-    #             break
-    #         mkcap_ticker = [r['code'] for r in req.json()['results']]
-    #         print("mkt_ticker_length:",len(mkcap_ticker))
-    #         refined_ticker += mkcap_ticker
-    #     return refined_ticker
-
     def make_ticker_data(self, kp_tickers, kd_tickers, mode=None):
         etf_tickers_list = self.etf_tickers
         if mode == 'except_etf':

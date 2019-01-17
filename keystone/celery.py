@@ -36,12 +36,12 @@ app.conf.beat_schedule = {
     },
     'make_ohlcv_cache': {
         'task': 'task.tasks.send_ohlcv_cache',
-        'schedule': crontab(minute='40', hour='4', day_of_week='tue-sat'),
+        'schedule': crontab(minute='45', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
     'make_ohlcv_cache': {
         'task': 'task.tasks.send_mktcap_cache',
-        'schedule': crontab(minute='40', hour='4', day_of_week='tue-sat'),
+        'schedule': crontab(minute='50', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
     'etf_data_crawler': {

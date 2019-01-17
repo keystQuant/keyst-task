@@ -3,7 +3,7 @@ from celery import shared_task
 import time
 import requests
 from .cache import RedisClient
-from task.send_ohlcv_cache import KeystTask
+from task.send_cache import KeystTask
 
 GOBBLE_URL = 'http://45.77.31.8:3000/task/'
 API_URL = 'http://45.76.202.71:3000/api/v1/stocks/task/?type='
@@ -150,5 +150,5 @@ def send_ohlcv_cache():
 
 @shared_task
 def send_mktcap_cache():
-    k.send_mktcap_cache()
+    k.send_mkt_data()
     return True
