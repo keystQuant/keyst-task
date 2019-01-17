@@ -2,7 +2,14 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 from datetime import timedelta
-from task.tasks import temp_data_crawler, temp_update_check, temp_send_cache, send_ohlcv_cache, send_mktcap_cache
+from task.tasks import (
+    temp_data_crawler,
+    temp_update_check,
+    temp_send_cache,
+    send_ohlcv_cache,
+    send_mktcap_cache,
+    send_buysell_cache,
+    )
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'keystone.settings')
 
@@ -39,9 +46,14 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='45', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
-    'make_ohlcv_cache': {
+    'make_mktcap_cache': {
         'task': 'task.tasks.send_mktcap_cache',
-        'schedule': crontab(minute='50', hour='4', day_of_week='tue-sat'),
+        'schedule': crontab(minute='45', hour='4', day_of_week='tue-sat'),
+        'args': (),
+    },
+    'make_buysell_cache': {
+        'task': 'task.tasks.send_buysell_cache',
+        'schedule': crontab(minute='45', hour='4', day_of_week='tue-sat'),
         'args': (),
     },
     'etf_data_crawler': {

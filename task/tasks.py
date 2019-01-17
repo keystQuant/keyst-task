@@ -152,3 +152,8 @@ def send_ohlcv_cache():
 def send_mktcap_cache():
     k.send_mkt_data()
     return True
+
+@shared_task
+def send_buysell_cache():
+    k.send_buysell_data()
+    return True
