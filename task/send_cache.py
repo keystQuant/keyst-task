@@ -135,7 +135,11 @@ class KeystTask(object):
             if i % 100 == 0:
                 print(ticker)
             key = ticker + '_BUYSELL'
-            buysell = pd.read_msgpack(self.redis.redis_client.get(key))
+            try:
+                buysell = pd.read_msgpack(self.redis.redis_client.get(key))
+            except ValueError:
+                print(key)
+                continue
             buysell.set_index('date', inplace=True)
             buysell.index = pd.to_datetime(buysell.index)
             pri_sell = buysell[['private_s']]
