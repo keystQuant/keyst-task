@@ -31,7 +31,7 @@ class KeystTask(object):
         self.kp_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSPI_TICKERS, 0 ,-1)]
         self.kd_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSDAQ_TICKERS, 0 ,-1)]
         self.etf_list = self.redis.get_list(ETF_TICKERS)
-        setf.etn_list = self.redis.get_list(ETN_TICKERS)
+        self.etn_list = self.redis.get_list(ETN_TICKERS)
         self.etf_tickers = list(set(self.etf_list + self.etn_list))
         self.mkt_tickers = self.redis.get_list('MKTCAP_TICKERS')
         print("Task is ready", len(self.kp_tickers), len(self.kd_tickers), len(self.etf_tickers))
