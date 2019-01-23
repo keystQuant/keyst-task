@@ -61,4 +61,9 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='0', hour='6', day_of_week='tue-sat'),
         'args': (),
     },
+    'buysell_mkt_data_crawler': {
+        'task': 'task.tasks.send_buysell_mkt',
+        'schedule': crontab(minute='10', hour='6', day_of_week='tue-sat'),
+        'args': (),
+    },
 }

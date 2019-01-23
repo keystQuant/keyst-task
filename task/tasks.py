@@ -28,6 +28,8 @@ cache_buysell_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_BU
 cache_etf_ticker = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_etf_tickers'
 cache_mktcap_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_mktcap_data'
 
+cache_buysell_mk = 'http://207.148.99.218/api/v1/taks/?type='
+
 k = KeystTask()
 
 def update_tasks(redis_client):
@@ -156,4 +158,10 @@ def send_mktcap_cache():
 @shared_task
 def send_buysell_cache():
     k.send_buysell_data()
+    return True
+
+@shared_task
+def send_buysell_mkt():
+    cache_buysell_mkt = requests.get(cache_buysell_mk)
+    print("send_buysell_data")
     return True
