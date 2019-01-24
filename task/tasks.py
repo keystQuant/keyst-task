@@ -28,7 +28,7 @@ cache_buysell_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=CACHE_BU
 cache_etf_ticker = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_etf_tickers'
 cache_mktcap_data = 'http://45.76.202.71:3000/api/v1/stocks/task/?type=cache_mktcap_data'
 
-cache_buysell_mk = 'http://207.148.99.218/api/v1/taks/?type='
+cache_buysell_mk = 'http://207.148.99.218:3000/mined/api/v1/task/?type=cache_buysell_mkt'
 
 k = KeystTask()
 
