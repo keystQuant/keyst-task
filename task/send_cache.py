@@ -23,10 +23,6 @@ ETF_VOL = 'ETF_VOL'
 class KeystTask(object):
 
     def __init__(self):
-        # self.mktcap_url = 'http://45.76.202.71:3000/api/v1/stocks/mktcap/?date={}&page={}'
-        self.cache_ip = '198.13.60.19'
-        self.cache_pw = 'da56038fa453c22d2c46e83179126e97d4d272d02ece83eb83a97357e842d065'
-        # self.r = redis.StrictRedis(host=self.cache_ip, port=6379, password=self.cache_pw)
         self.redis = RedisClient()
         self.kp_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSPI_TICKERS, 0 ,-1)]
         self.kd_tickers = [ticker.decode() for ticker in self.redis.redis_client.lrange(KOSDAQ_TICKERS, 0 ,-1)]
@@ -141,7 +137,7 @@ class KeystTask(object):
             try:
                 buysell = pd.read_msgpack(self.redis.redis_client.get(key))
             except ValueError:
-                print(key)
+                print("Nonexistent Key:",key)
                 continue
             buysell.set_index('date', inplace=True)
             buysell.index = pd.to_datetime(buysell.index)
@@ -167,6 +163,55 @@ class KeystTask(object):
         end = time.time()
         print(end-start)
         return total_pri_sell, total_frg_net, total_ins_net
+
+    def make_factor_df(self):
+        start = time.time()
+        make_data_start = True
+        tickers_list = self.mkt_tickers
+        print("{}:".format("buysell ticker length"), len(tickers_list))
+        global total_pbr
+        global total_per
+        global total_pcr
+        global total_psr
+        i = 0
+        for ticker in tickers_list:
+            # OHLCV 데이터 불러오기
+            i += 1
+            if i % 100 == 0:
+                print(ticker)
+            key = ticker + '_FACTOR'
+            try:
+                factor_df = pd.read_msgpack(self.redis.redis_client.get(key))
+            except ValueError:
+                print("Nonexistent Key:",key)
+                continue
+            factor_df.set_index('date', inplace=True)
+            factor_df.index = pd.to_datetime(buysell.index)
+            factor_pbr = factor_df[['pbr']]
+            factor_per = factor_df[['per']]
+            factor_pcr = factor_df[['pcr']]
+            factor_psr = factor_df[['psr']]
+            factor_pbr.rename({'pbr':ticker}, axis='columns', inplace=True)
+            factor_per.rename({'per':ticker}, axis='columns', inplace=True)
+            factor_pcr.rename({'pcr':ticker}, axis='columns', inplace=True)
+            factor_psr.rename({'psr':ticker}, axis='columns', inplace=True)
+            if make_data_start:
+                total_pbr = factor_pbr
+                total_per = factor_per
+                total_pcr = factor_pcr
+                total_psr = factor_psr
+                make_data_start = False
+                print(make_data_start)
+            else:
+                total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
+                total_per = pd.concat([total_per, factor_per], axis=1)
+                total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
+                total_psr = pd.concat([total_psr, factor_psr], axis=1)
+            if i % 100 == 0:
+                print("df_size_factor:", total_pbr.shape, total_per.shape, total_pcr.shape, total_psr.shape)
+        end = time.time()
+        print(end-start)
+        return total_pbr, total_per, total_pcr, total_psr
 
     def send_ohlcv_data(self):
         start = time.time()
@@ -233,6 +278,32 @@ class KeystTask(object):
         self.redis.redis_client.set(PRI_DF_KEY, pri_sell_df.to_msgpack(compress='zlib'))
         self.redis.redis_client.set(FRG_DF_KEY, frg_net_df.to_msgpack(compress='zlib'))
         self.redis.redis_client.set(INS_DF_KEY, ins_net_df.to_msgpack(compress='zlib'))
+        end = time.time()
+        success=True
+        print(end-start)
+        return success, "Data send complete"
+
+
+    def send_factor_data(self):
+        start = time.time()
+        success=False
+        pbr_df, per_df, pcr_df, psr_df = self.make_factor_df()
+        print(pri_sell_df.shape, frg_net_df.shape, ins_net_df.shape)
+        PBR_DF_KEY = "PBR_DF"
+        PER_DF_KEY = "PER_DF"
+        PSR_DF_KEY = "PSR_DF"
+        PCR_DF_KEY = "PCR_DF"
+
+        for key in [PBR_DF_KEY, PER_DF_KEY, PSR_DF_KEY, PCR_DF_KEY]:
+            response = self.redis.redis_client.exists(key)
+            if response != False:
+                self.redis.redis_client.delete(key)
+                print('{} 이미 있음, 삭제하는 중...'.format(key))
+
+        self.redis.redis_client.set(PBR_DF_KEY, pbr_df.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(PER_DF_KEY, per_df.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(PSR_DF_KEY, psr_df.to_msgpack(compress='zlib'))
+        self.redis.redis_client.set(PCR_DF_KEY, pcr_df.to_msgpack(compress='zlib'))
         end = time.time()
         success=True
         print(end-start)
