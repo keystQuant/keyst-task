@@ -205,7 +205,7 @@ class KeystTask(object):
                 print(make_data_start)
             else:
                 try:
-                    if factor_pbr.shape[0] =< df_length:
+                    if factor_pbr.shape[0] <= df_length:
                         total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
                         total_per = pd.concat([total_per, factor_per], axis=1)
                         total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
