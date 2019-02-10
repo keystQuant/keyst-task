@@ -298,7 +298,7 @@ class KeystTask(object):
         start = time.time()
         success=False
         pbr_df, per_df, pcr_df, psr_df = self.make_factor_df()
-        print(pri_sell_df.shape, frg_net_df.shape, ins_net_df.shape)
+        print(pbr_df.shape, per_df.shape, pcr_df.shape, psr_df.shape)
         PBR_DF_KEY = "PBR_DF"
         PER_DF_KEY = "PER_DF"
         PSR_DF_KEY = "PSR_DF"
