@@ -203,10 +203,14 @@ class KeystTask(object):
                 make_data_start = False
                 print(make_data_start)
             else:
-                total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
-                total_per = pd.concat([total_per, factor_per], axis=1)
-                total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
-                total_psr = pd.concat([total_psr, factor_psr], axis=1)
+                try:
+                    total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
+                    total_per = pd.concat([total_per, factor_per], axis=1)
+                    total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
+                    total_psr = pd.concat([total_psr, factor_psr], axis=1)
+                except ValueError:
+                    print("ValueError Key:", key)
+                    continue
             if i % 100 == 0:
                 print("df_size_factor:", total_pbr.shape, total_per.shape, total_pcr.shape, total_psr.shape)
         end = time.time()
