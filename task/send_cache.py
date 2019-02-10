@@ -200,8 +200,8 @@ class KeystTask(object):
                 total_per = factor_per
                 total_pcr = factor_pcr
                 total_psr = factor_psr
-                make_data_start = False
                 df_length = factor_pbr.shape[0]
+                make_data_start = False
                 print(make_data_start)
             else:
                 try:
@@ -211,7 +211,7 @@ class KeystTask(object):
                         total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
                         total_psr = pd.concat([total_psr, factor_psr], axis=1)
                     else:
-                        print("LenthError Key:", key, "ticker: ", ticker)
+                        print("LenthError Key:", key, "ticker: ", ticker, factor_pbr.shape[0], df_length)
                         continue
                 except ValueError:
                     print("ValueError Key:", key, "ticker: ", ticker)
