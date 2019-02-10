@@ -205,13 +205,14 @@ class KeystTask(object):
                 print(make_data_start)
             else:
                 try:
-                    if factor_pbr.shape[0] > df_length:
+                    if factor_pbr.shape[0] =< df_length:
                         total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
                         total_per = pd.concat([total_per, factor_per], axis=1)
                         total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
                         total_psr = pd.concat([total_psr, factor_psr], axis=1)
                     else:
-                        print("LenthError Key:", key, "ticker: ", ticker, factor_pbr.shape[0], df_length)
+                        print("LenthError Key:", key, "ticker: ", ticker)
+                        print(factor_pbr.shape[0], df_length)
                         continue
                 except ValueError:
                     print("ValueError Key:", key, "ticker: ", ticker)
