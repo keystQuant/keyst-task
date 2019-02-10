@@ -186,7 +186,7 @@ class KeystTask(object):
                 print("Nonexistent Key:",key)
                 continue
             factor_df.set_index('date', inplace=True)
-            factor_df.index = pd.to_datetime(buysell.index)
+            factor_df.index = pd.to_datetime(factor_df.index)
             factor_pbr = factor_df[['pbr']]
             factor_per = factor_df[['per']]
             factor_pcr = factor_df[['pcr']]
