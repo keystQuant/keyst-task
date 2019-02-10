@@ -201,15 +201,20 @@ class KeystTask(object):
                 total_pcr = factor_pcr
                 total_psr = factor_psr
                 make_data_start = False
+                df_length = factor_pbr.shape[0]
                 print(make_data_start)
             else:
                 try:
-                    total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
-                    total_per = pd.concat([total_per, factor_per], axis=1)
-                    total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
-                    total_psr = pd.concat([total_psr, factor_psr], axis=1)
+                    if factor_pbr.shape[0] == df_length:
+                        total_pbr = pd.concat([total_pbr, factor_pbr], axis=1)
+                        total_per = pd.concat([total_per, factor_per], axis=1)
+                        total_pcr = pd.concat([total_pcr, factor_pcr], axis=1)
+                        total_psr = pd.concat([total_psr, factor_psr], axis=1)
+                    else:
+                        print("LenthError Key:", key, "ticker: ", ticker)
+                        continue
                 except ValueError:
-                    print("ValueError Key:", key)
+                    print("ValueError Key:", key, "ticker: ", ticker)
                     continue
             if i % 100 == 0:
                 print("df_size_factor:", total_pbr.shape, total_per.shape, total_pcr.shape, total_psr.shape)
