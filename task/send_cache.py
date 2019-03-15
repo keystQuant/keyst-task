@@ -89,6 +89,8 @@ class KeystTask(object):
                     total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
                     total_vol = pd.concat([total_vol, vol_df], axis=1)
                 except ValueError:
+                    print("코드:", ticker, " 데이터 차원(OHLCV):", total_ohlcv.shape, ohlcv_df.shape,\
+                            " 데이터 차원(Volume):", total_vol.shape, vol_df.shape)
                     print(ticker)
                     continue
             if i % 100 == 0:
