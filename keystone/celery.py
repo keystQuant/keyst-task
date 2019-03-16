@@ -9,6 +9,8 @@ from task.tasks import (
     send_ohlcv_cache,
     send_mktcap_cache,
     send_buysell_cache,
+    send_factor_cache,
+    send_buysell_mkt,
     )
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'keystone.settings')
