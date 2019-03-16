@@ -5,7 +5,6 @@ import time
 
 from task.cache import RedisClient
 
-
 KOSPI_TICKERS = 'KOSPI_TICKERS'
 KOSDAQ_TICKERS = 'KOSDAQ_TICKERS'
 ETF_TICKERS = 'ETF_FULL_TICKERS'
@@ -82,17 +81,8 @@ class KeystTask(object):
                 make_data_start = False
                 print(make_data_start)
             else:
-                # if (total_ohlcv.shape[0] != ohlcv_df.shape[0]) or (total_vol.shape[0] != vol_df.shape[0]):
-                #     print("코드:", ticker, " 데이터 차원(OHLCV):", total_ohlcv.shape, ohlcv_df.shape,\
-                #         " 데이터 차원(Volume):", total_vol.shape, vol_df.shape)
-                try:
-                    total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
-                    total_vol = pd.concat([total_vol, vol_df], axis=1)
-                except ValueError:
-                    print("코드:", ticker, " 데이터 차원(OHLCV):", total_ohlcv.shape, ohlcv_df.shape,\
-                            " 데이터 차원(Volume):", total_vol.shape, vol_df.shape)
-                    print(ticker)
-                    continue
+                total_ohlcv = pd.concat([total_ohlcv, ohlcv_df], axis=1)
+                total_vol = pd.concat([total_vol, vol_df], axis=1)
             if i % 100 == 0:
                 print("df_size_{}".format(mode), total_ohlcv.shape, total_vol.shape)
         return total_ohlcv, total_vol
