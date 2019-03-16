@@ -66,4 +66,9 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='10', hour='6', day_of_week='tue-sat'),
         'args': (),
     },
+    'make_factor_cache': {
+        'task': 'task.tasks.send_factor_cache',
+        'schedule': crontab(minute='0', hour='1', day_of_week='sun'),
+        'args': (),
+    },
 }

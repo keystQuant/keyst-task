@@ -166,3 +166,8 @@ def send_buysell_mkt():
     cache_buysell_mkt = requests.get(cache_buysell_mk)
     print("send_buysell_data")
     return True
+
+@shared_task
+def send_factor_cache():
+    k.send_factor_data()
+    return True
